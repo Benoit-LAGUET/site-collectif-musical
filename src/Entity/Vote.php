@@ -1,33 +1,33 @@
 <?php
 
-namespace App\\Entity;
+namespace App\Entity;
 
-use Doctrine\\Common\\Collections\\ArrayCollection;
-use Doctrine\\Common\\Collections\\Collection;
-use Doctrine\\ORM\\Mapping as ORM;
-use App\\Validator\\AtLeastTwoInstruments;
-use App\\Validator\\ChosenInstrumentsBelongToSong;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use App\Validator\AtLeastTwoInstruments;
+use App\Validator\ChosenInstrumentsBelongToSong;
 
-#[ORM\\Entity]
-#[ORM\\Table(name: 'vote', uniqueConstraints: [new ORM\\UniqueConstraint(name: 'uniq_vote_member_song', columns: ['member_id', 'song_id'])])]
+#[ORM\Entity]
+#[ORM\Table(name: 'vote', uniqueConstraints: [new ORM\UniqueConstraint(name: 'uniq_vote_member_song', columns: ['member_id', 'song_id'])])]
 #[ChosenInstrumentsBelongToSong]
 class Vote
 {
-    #[ORM\\Id]
-    #[ORM\\GeneratedValue]
-    #[ORM\\Column]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\\ManyToOne(targetEntity: Member::class)]
-    #[ORM\\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Member::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Member $member = null;
 
-    #[ORM\\ManyToOne(targetEntity: Song::class)]
-    #[ORM\\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Song::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Song $song = null;
 
-    #[ORM\\ManyToMany(targetEntity: Instrument::class)]
-    #[ORM\\JoinTable(name: 'vote_instrument')]
+    #[ORM\ManyToMany(targetEntity: Instrument::class)]
+    #[ORM\JoinTable(name: 'vote_instrument')]
     #[AtLeastTwoInstruments]
     private Collection $instruments;
 
