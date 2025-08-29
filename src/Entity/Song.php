@@ -5,8 +5,10 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
+#[ORM\Table(name: 'song', indexes: [new ORM\Index(name: 'idx_song_title', columns: ['title'])])]
 class Song
 {
     #[ORM\Id]
@@ -14,37 +16,31 @@ class Song
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 150)]
     private string $title;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 150, nullable: true)]
     private ?string $artist = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Url]
     private ?string $youtubeLink = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(options: ['default' => false])]
     private bool $inSetlist = false;
 
-    // Instruments nécessaires pour jouer ce morceau
-    // Unidirectionnel pour éviter de toucher à Instrument
     #[ORM\ManyToMany(targetEntity: Instrument::class)]
     #[ORM\JoinTable(name: 'song_instrument')]
     private Collection $instruments;
 
-    // Votes associés à ce morceau (navigation utile pour l'affichage public)
-    #[ORM\OneToMany(mappedBy: 'song', targetEntity: Vote::class, cascade: ['remove'], orphanRemoval: true)]
-    private Collection $votes;
-
     public function __construct()
     {
         $this->instruments = new ArrayCollection();
-        $this->votes = new ArrayCollection();
     }
 
     public function __toString(): string
     {
-        return $this->title ?? 'Morceau';
+        return $this->title;
     }
 
     public function getId(): ?int { return $this->id; }
@@ -73,26 +69,6 @@ class Song
     public function removeInstrument(Instrument $instrument): self
     {
         $this->instruments->removeElement($instrument);
-        return $this;
-    }
-
-    /** @return Collection<int, Vote> */
-    public function getVotes(): Collection { return $this->votes; }
-    public function addVote(Vote $vote): self
-    {
-        if (!$this->votes->contains($vote)) {
-            $this->votes->add($vote);
-            $vote->setSong($this);
-        }
-        return $this;
-    }
-    public function removeVote(Vote $vote): self
-    {
-        if ($this->votes->removeElement($vote)) {
-            if ($vote->getSong() === $this) {
-                $vote->setSong(null);
-            }
-        }
         return $this;
     }
 }
