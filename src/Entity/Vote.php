@@ -1,41 +1,39 @@
 <?php
 
-namespace App\Entity;
+namespace App\\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\\Common\\Collections\\ArrayCollection;
+use Doctrine\\Common\\Collections\\Collection;
+use Doctrine\\ORM\\Mapping as ORM;
+use App\\Validator\\AtLeastTwoInstruments;
+use App\\Validator\\ChosenInstrumentsBelongToSong;
 
-#[ORM\Entity]
-#[UniqueEntity(fields: ['member', 'song'], message: 'Ce membre a déjà voté pour ce morceau.')]
+#[ORM\\Entity]
+#[ORM\\Table(name: 'vote', uniqueConstraints: [new ORM\\UniqueConstraint(name: 'uniq_vote_member_song', columns: ['member_id', 'song_id'])])]
+#[ChosenInstrumentsBelongToSong]
 class Vote
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\\Id]
+    #[ORM\\GeneratedValue]
+    #[ORM\\Column]
     private ?int $id = null;
 
-    // Owning side pour éviter d’éditer Member
-    #[ORM\ManyToOne(targetEntity: Member::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\\ManyToOne(targetEntity: Member::class)]
+    #[ORM\\JoinColumn(nullable: false)]
     private ?Member $member = null;
 
-    #[ORM\ManyToOne(targetEntity: Song::class, inversedBy: 'votes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\\ManyToOne(targetEntity: Song::class)]
+    #[ORM\\JoinColumn(nullable: false)]
     private ?Song $song = null;
 
-    // Instruments choisis par le membre pour jouer ce morceau (>= 2)
-    // Unidirectionnel pour éviter d’éditer Instrument
-    #[ORM\ManyToMany(targetEntity: Instrument::class)]
-    #[ORM\JoinTable(name: 'vote_instrument')]
-    #[Assert\Count(min: 2, minMessage: 'Vous devez choisir au moins 2 instruments.')]
-    private Collection $chosenInstruments;
+    #[ORM\\ManyToMany(targetEntity: Instrument::class)]
+    #[ORM\\JoinTable(name: 'vote_instrument')]
+    #[AtLeastTwoInstruments]
+    private Collection $instruments;
 
     public function __construct()
     {
-        $this->chosenInstruments = new ArrayCollection();
+        $this->instruments = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -47,17 +45,17 @@ class Vote
     public function setSong(?Song $song): self { $this->song = $song; return $this; }
 
     /** @return Collection<int, Instrument> */
-    public function getChosenInstruments(): Collection { return $this->chosenInstruments; }
-    public function addChosenInstrument(Instrument $instrument): self
+    public function getInstruments(): Collection { return $this->instruments; }
+    public function addInstrument(Instrument $instrument): self
     {
-        if (!$this->chosenInstruments->contains($instrument)) {
-            $this->chosenInstruments->add($instrument);
+        if (!$this->instruments->contains($instrument)) {
+            $this->instruments->add($instrument);
         }
         return $this;
     }
-    public function removeChosenInstrument(Instrument $instrument): self
+    public function removeInstrument(Instrument $instrument): self
     {
-        $this->chosenInstruments->removeElement($instrument);
+        $this->instruments->removeElement($instrument);
         return $this;
     }
 }
