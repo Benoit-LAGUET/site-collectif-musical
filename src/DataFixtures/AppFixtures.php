@@ -9,109 +9,108 @@ use App\Entity\Song;
 use App\Entity\Vote;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(private UserPasswordHasherInterface $hasher) {}
+
     public function load(ObjectManager $manager): void
     {
         // Instruments
-        $guitare  = (new Instrument())->setName('Guitare');
-        $basse    = (new Instrument())->setName('Basse');
-        $batterie = (new Instrument())->setName('Batterie');
-        $chant    = (new Instrument())->setName('Chant');
+        $guitare   = (new Instrument())->setName('Guitare');
+        $basse     = (new Instrument())->setName('Basse');
+        $batterie  = (new Instrument())->setName('Batterie');
+        $chant     = (new Instrument())->setName('Chant');
+        $clavier   = (new Instrument())->setName('Clavier');
+        $saxophone = (new Instrument())->setName('Saxophone');
 
-        foreach ([$guitare, $basse, $batterie, $chant] as $i) {
+        foreach ([$guitare, $basse, $batterie, $chant, $clavier, $saxophone] as $i) {
             $manager->persist($i);
         }
 
-        // Membres (avec plusieurs instruments possibles)
+        // Membres (4) avec email unique et mot de passe "test"
         $alex = (new Member())
             ->setFirstName('Alex')
-            ->setLastName('Durand')
-            ->setRole('Chanteur');
-        $alex->addInstrument($chant)->addInstrument($guitare);
+            ->setLastname('Durand')
+            ->setRole('Chanteur')
+            ->setEmail('alex@example.com');
+        $alex->setPassword($this->hasher->hashPassword($alex, 'test'));
         $manager->persist($alex);
 
         $marie = (new Member())
             ->setFirstName('Marie')
-            ->setLastName('Lefèvre')
-            ->setRole('Guitariste');
-        $marie->addInstrument($guitare)->addInstrument($chant)->addInstrument($basse);
+            ->setLastname('Lefèvre')
+            ->setRole('Guitariste')
+            ->setEmail('marie@example.com');
+        $marie->setPassword($this->hasher->hashPassword($marie, 'test'));
         $manager->persist($marie);
 
         $paul = (new Member())
             ->setFirstName('Paul')
-            ->setLastName('Martin')
-            ->setRole('Batteur');
-        $paul->addInstrument($batterie)->addInstrument($basse);
+            ->setLastname('Martin')
+            ->setRole('Batteur')
+            ->setEmail('paul@example.com');
+        $paul->setPassword($this->hasher->hashPassword($paul, 'test'));
         $manager->persist($paul);
 
-        // Morceaux (Song) avec instruments requis
-        $song1 = (new Song())
-            ->setTitle('Back in Black')
-            ->setArtist('AC/DC')
-            ->setYoutubeLink('https://www.youtube.com/watch?v=pAgnJDJN4VA')
+        $lea = (new Member())
+            ->setFirstName('Léa')
+            ->setLastname('Dupont')
+            ->setRole('Claviériste')
+            ->setEmail('lea@example.com');
+        $lea->setPassword($this->hasher->hashPassword($lea, 'test'));
+        $manager->persist($lea);
+
+        // Songs
+        $takeFive = (new Song())
+            ->setTitle('Take Five')
+            ->setArtist('The Dave Brubeck Quartet')
             ->setInSetlist(true)
-            ->addInstrument($guitare)
-            ->addInstrument($basse)
             ->addInstrument($batterie)
-            ->addInstrument($chant);
-        $manager->persist($song1);
+            ->addInstrument($saxophone)
+            ->addInstrument($clavier);
+        $manager->persist($takeFive);
 
-        $song2 = (new Song())
-            ->setTitle('Smells Like Teen Spirit')
-            ->setArtist('Nirvana')
-            ->setYoutubeLink('https://www.youtube.com/watch?v=hTWKbfoikeg')
+        $sevenNationArmy = (new Song())
+            ->setTitle('Seven Nation Army')
+            ->setArtist('The White Stripes')
             ->setInSetlist(false)
             ->addInstrument($guitare)
             ->addInstrument($basse)
             ->addInstrument($batterie)
             ->addInstrument($chant);
-        $manager->persist($song2);
+        $manager->persist($sevenNationArmy);
 
-        $song3 = (new Song())
-            ->setTitle('Zombie')
-            ->setArtist('The Cranberries')
-            ->setYoutubeLink('https://www.youtube.com/watch?v=6Ejga4kJUts')
+        $otherSong = (new Song())
+            ->setTitle('Wonderwall')
+            ->setArtist('Oasis')
             ->setInSetlist(false)
             ->addInstrument($guitare)
-            ->addInstrument($basse)
-            ->addInstrument($batterie)
             ->addInstrument($chant);
-        $manager->persist($song3);
+        $manager->persist($otherSong);
 
-        // Votes (au moins 2 instruments choisis)
-        // Alex vote sur Back in Black (chant + guitare)
+        // Votes (respect des contraintes: >= 2 instruments et appartenance au morceau)
         $v1 = (new Vote())
             ->setMember($alex)
-            ->setSong($song1)
-            ->addChosenInstrument($chant)
-            ->addChosenInstrument($guitare);
+            ->setSong($sevenNationArmy)
+            ->addInstrument($chant)
+            ->addInstrument($batterie);
         $manager->persist($v1);
 
-        // Marie vote sur Back in Black (guitare + basse)
         $v2 = (new Vote())
             ->setMember($marie)
-            ->setSong($song1)
-            ->addChosenInstrument($guitare)
-            ->addChosenInstrument($basse);
+            ->setSong($sevenNationArmy)
+            ->addInstrument($guitare)
+            ->addInstrument($chant);
         $manager->persist($v2);
 
-        // Paul vote sur Back in Black (batterie + basse)
         $v3 = (new Vote())
             ->setMember($paul)
-            ->setSong($song1)
-            ->addChosenInstrument($batterie)
-            ->addChosenInstrument($basse);
+            ->setSong($takeFive)
+            ->addInstrument($batterie)
+            ->addInstrument($clavier);
         $manager->persist($v3);
-
-        // Votes sur un autre morceau
-        $v4 = (new Vote())
-            ->setMember($marie)
-            ->setSong($song2)
-            ->addChosenInstrument($guitare)
-            ->addChosenInstrument($chant);
-        $manager->persist($v4);
 
         // Un événement (existant)
         $event = (new Event())
