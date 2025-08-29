@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ member.firstName }} {{ member.lastName }}{% endblock %}
+
+{% block body %}
+  <div class="container" style="max-width: 600px; margin: 2rem auto; font-family: Arial, sans-serif;">
+    <h1>{{ member.firstName }} {{ member.lastName }}</h1>
+
+    {% if member.role %}
+      <p><strong>Rôle :</strong> {{ member.role }}</p>
+    {% endif %}
+
+    {% if member.instruments|length %}
+      <p><strong>Instruments :</strong> {{ member.instruments|join(', ') }}</p>
+    {% endif %}
+  </div>
+{% endblock %}

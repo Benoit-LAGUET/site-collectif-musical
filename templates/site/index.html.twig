@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Le Groupe{% endblock %}
+
+{% block body %}
+  <div class="container" style="max-width: 800px; margin: 2rem auto; font-family: Arial, sans-serif;">
+    <h1>Notre Groupe</h1>
+
+    <h2 id="membres">Membres</h2>
+    <ul>
+      {% for m in members %}
+        <li>
+        <a href="{{ path('site_member', {id: m.id}) }}">
+            <strong>{{ m.firstName }} {{ m.lastName }}</strong>
+        </a>
+        {% if m.role %} — {{ m.role }}{% endif %}
+        {% if m.instruments|length %}
+            <div>Instruments : {{ m.instruments|join(', ') }}</div>
+        {% endif %}
+        </li>
+      {% else %}
+        <li>Aucun membre trouvé.</li>
+      {% endfor %}
+    </ul>
+
+    <h2 id="events">Événements à venir</h2>
+    <ul>
+      {% for e in events %}
+        <li>
+        <a href="{{ path('site_event', {id: e.id}) }}">
+            <strong>{{ e.title }}</strong>
+        </a>
+        le {{ e.date|date('d/m/Y H:i') }} — {{ e.lieu }}
+        {% if e.description %}<br><em>{{ e.description }}</em>{% endif %}
+        </li>
+      {% else %}
+        <li>Aucun événement à venir.</li>
+      {% endfor %}
+    </ul>
+
+    <h2 id="contact">Contact</h2>
+    <p>Écrivez-nous à <a href="mailto:contact@mongroupe.fr">contact@mongroupe.fr</a></p>
+
+  </div>
+{% endblock %}
