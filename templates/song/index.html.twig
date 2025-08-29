@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Morceaux{% endblock %}
+
+{% block body %}
+  <div class="container" style="max-width: 900px; margin: 2rem auto; font-family: Arial, sans-serif;">
+    <h1>Liste des morceaux</h1>
+
+    {% for s in songs %}
+      <div style="border:1px solid #ddd; padding:1rem; margin-bottom:1rem; border-radius:8px;">
+        <h3 style="margin:0;">
+          {{ s.title }}{% if s.artist %} — <small>{{ s.artist }}</small>{% endif %}
+        </h3>
+        <div style="margin:.5rem 0;">
+          {% if s.inSetlist %}
+            <span style="background:#e6ffed; color:#067d27; padding:.2rem .5rem; border-radius:4px; font-size:.85rem;">Dans la setlist</span>
+          {% else %}
+            <span style="background:#fff3cd; color:#8a6d3b; padding:.2rem .5rem; border-radius:4px; font-size:.85rem;">Hors setlist</span>
+          {% endif %}
+        </div>
+
+        {% if s.youtubeLink %}
+          <div><a href="{{ s.youtubeLink }}" target="_blank" rel="noopener">Voir sur YouTube</a></div>
+        {% endif %}
+
+        <div style="margin-top:.5rem;">
+          <strong>Instruments nécessaires:</strong>
+          {% if s.instruments|length %}
+            {{ s.instruments|map(i => i.name)|join(', ') }}
+          {% else %}
+            <em>Aucun instrument spécifié.</em>
+          {% endif %}
+        </div>
+
+        <div style="margin-top:.5rem;">
+          <strong>Membres ayant choisi chaque instrument:</strong>
+          <ul>
+            {% for instr in s.instruments %}
+              {% set members = [] %}
+              {% for v in s.votes %}
+                {% if instr in v.chosenInstruments %}
+                  {% set members = members|merge([v.member]) %}
+                {% endif %}
+              {% endfor %}
+              <li>
+                <em>{{ instr.name }}</em> :
+                {% if members|length %}
+                  {% for m in members %}
+                    {{ m.firstName }} {{ m.lastName }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                {% else %}
+                  — Aucun vote
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% else %}
+      <p>Aucun morceau pour le moment.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

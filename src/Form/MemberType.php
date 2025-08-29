@@ -15,12 +15,13 @@ class MemberType extends AbstractType
     {
         $builder
             ->add('firstName')
-            ->add('lastname')
+            ->add('lastName')
             ->add('role')
             ->add('instruments', EntityType::class, [
                 'class' => Instrument::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
                 'multiple' => true,
+                'by_reference' => false,
             ])
         ;
     }

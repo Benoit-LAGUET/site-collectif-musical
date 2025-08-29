@@ -87,7 +87,6 @@ class Member
     public function addInstrument(Instrument $instrument): static
     {
         if (!$this->instruments->contains($instrument)) {
-            $this->instruments->add($instrument);
         }
 
         return $this;
@@ -100,3 +99,4 @@ class Member
         return $this;
     }
 }
+

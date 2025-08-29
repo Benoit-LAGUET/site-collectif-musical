@@ -16,7 +16,12 @@
         </a>
         {% if m.role %} — {{ m.role }}{% endif %}
         {% if m.instruments|length %}
-            <div>Instruments : {{ m.instruments|join(', ') }}</div>
+            <div>
+              Instruments :
+              {% for instr in m.instruments %}
+                {{ instr.name }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </div>
         {% endif %}
         </li>
       {% else %}
@@ -44,3 +49,4 @@
 
   </div>
 {% endblock %}
+

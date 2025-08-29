@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/instrument')]
 final class InstrumentController extends AbstractController
 {
-    #[Route(name: 'app_instrument_index', methods: ['GET'])]
+    #[Route('/instruments', name: 'app_instrument_index', methods: ['GET'])]
     public function index(InstrumentRepository $instrumentRepository): Response
     {
         return $this->render('instrument/index.html.twig', [
@@ -79,3 +79,4 @@ final class InstrumentController extends AbstractController
         return $this->redirectToRoute('app_instrument_index', [], Response::HTTP_SEE_OTHER);
     }
 }
+

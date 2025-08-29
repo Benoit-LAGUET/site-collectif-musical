@@ -6,7 +6,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
+use App\Controller\Admin\SongCrudController;
+use App\Controller\Admin\VoteCrudController;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
@@ -48,6 +51,10 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Membres', 'fas fa-users', \App\Entity\Member::class);
         yield MenuItem::linkToCrud('Instruments', 'fas fa-music', \App\Entity\Instrument::class);
         yield MenuItem::linkToCrud('Événements', 'fas fa-calendar', \App\Entity\Event::class);
-        // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
+        yield MenuItem::linkToCrud('Songs', 'fa fa-music', \App\Entity\Song::class)
+            ->setController(SongCrudController::class);
+        yield MenuItem::linkToCrud('Votes', 'fa fa-check', \App\Entity\Vote::class)
+            ->setController(VoteCrudController::class);
     }
 }
+
